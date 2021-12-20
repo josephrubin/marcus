@@ -1,0 +1,15 @@
+{
+  //"deno.enable": true,
+  "editor.formatOnSaveMode": "modificationsIfAvailable",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "eslint.validate": [
+    "javascript"
+  ],
+  "editor.tabSize": 2,
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/package-lock.json": true
+  },
+}

@@ -13,15 +13,21 @@
   "devDependencies": {
     "@types/jest": "^26.0.10",
     "@types/node": "10.17.27",
+    "aws-cdk": "2.2.0",
+    "esbuild": "^0.14.5",
     "jest": "^26.4.2",
     "ts-jest": "^26.2.0",
-    "aws-cdk": "2.2.0",
     "ts-node": "^9.0.0",
     "typescript": "~3.9.7"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.44.0",
+    "@typescript-eslint/eslint-plugin": "^5.7.0",
     "aws-cdk-lib": "2.2.0",
     "constructs": "^10.0.0",
-    "source-map-support": "^0.5.16"
+    "eslint": "^8.5.0",
+    "jshint": "^2.13.1",
+    "source-map-support": "^0.5.16",
+    "twilio": "^3.72.0"
   }
 }

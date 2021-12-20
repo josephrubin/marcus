@@ -1,4 +1,6 @@
 !jest.config.js
+!.eslintrc.js
+*.js
 *.d.ts
 node_modules
 

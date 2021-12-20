@@ -76,8 +76,9 @@ const lambdaHandler: SmsLambdaHandler = async (event) => {
 };
 
 function isAuthorizedRequest(parsedRequestBody: Map<string, string>) {
-  console.log(`Checking authorization for: ${parsedRequestBody.get("From")}`);
-  return parsedRequestBody.get("From") === "+12039149577";
+  const fromPhoneNumber = parsedRequestBody.get("From");
+  console.log(`Checking authorization for: ${fromPhoneNumber}`);
+  return fromPhoneNumber && ["+12039149577", "+15163615780"].includes(fromPhoneNumber);
 }
 
 function parseRequestBody(requestBody: string) {

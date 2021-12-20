@@ -1,4 +1,4 @@
-import { Duration, lambda_layer_awscli, RemovalPolicy, Stack, StackProps } from "aws-cdk-lib";
+import { Duration, RemovalPolicy, Stack, StackProps } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import * as nodelambda from "aws-cdk-lib/aws-lambda-nodejs";

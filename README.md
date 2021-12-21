@@ -1,14 +1,7 @@
-# Welcome to your CDK TypeScript project!
+# Marcus
 
-This is a blank project for TypeScript development with CDK.
+`%marcus%` is an SMS bot that helps you manage your life over text. It's like an interactive shell for your phone!
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+The List application provides creation and management of lists of text that are stored in the cloud. Use it for reminders or shopping.
 
-## Useful commands
-
- * `npm run build`   compile typescript to js
- * `npm run watch`   watch for changes and compile
- * `npm run test`    perform the jest unit tests
- * `cdk deploy`      deploy this stack to your default AWS account/region
- * `cdk diff`        compare deployed stack with current state
- * `cdk synth`       emits the synthesized CloudFormation template
+![Example usage of List application](assets/session_one.jpg)

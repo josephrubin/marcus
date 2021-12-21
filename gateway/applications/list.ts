@@ -20,18 +20,15 @@ function isNumberString(input: string) {
   return input.match(/^\d+$/);
 }
 
-function mapLines<U>(input: string, callback: (value: string, index: number, array: string[]) => U) {
-  // Run the map function on every line (lines end in \n)
-  // and return the result. Empty lines are not allowed.
-  if (input === "") {
+function textToLines(text: string) {
+  return text.split("\n").slice(0, -1);
+}
+
+function linesToText(lines: string[]) {
+  if (lines.length === 0) {
     return "";
   }
-  return input
-    .split("\n")
-    .filter(line => line !== "" && line !== "\n")
-    .map(callback)
-    .join("\n")
-    + "\n";
+  return lines.join("\n") + "\n";
 }
 
 async function s3ObjectToString(getObjectResult: GetObjectCommandOutput): Promise<string> {
@@ -72,7 +69,7 @@ export const listMake: CommandFunction = async (...args) => {
   await s3Client.putObject({
     Bucket: BUCKET_NAME,
     Key: getListKey(listName),
-    Body: "",
+    Body: linesToText([]),
   });
 
   return {
@@ -107,11 +104,13 @@ export const listPrint: CommandFunction = async (...args) => {
     });
 
     const listText = await s3ObjectToString(getObjectResult);
-    const numberedListText = mapLines(listText, (line, index) => `${index + 1}: ${line}`);
+    const numberedListText = linesToText(
+      textToLines(listText).map((line, index) => `${index + 1}: ${line}`).concat(["~"])
+    );
 
     return {
       code: "Success",
-      message: numberedListText + "~",
+      message: numberedListText,
     };
   }
   catch (err) {
@@ -144,11 +143,11 @@ export const listAppend: CommandFunction = async (...args) => {
   if (args.length < 2 || args[1].trim() === "") {
     return {
       code: "User Error",
-      message: "Cannot append a blank line. Supply a line.",
+      message: `${listName}: cannot append a blank line. Supply a line.`,
     };
   }
 
-  const line = args[1] + "\n";
+  const line = args[1];
 
   try {
     const getObjectResult = await s3Client.getObject({
@@ -157,7 +156,7 @@ export const listAppend: CommandFunction = async (...args) => {
     });
 
     const listText = await s3ObjectToString(getObjectResult);
-    const newListText = listText + line;
+    const newListText = linesToText(textToLines(listText).concat(line));
 
     await s3Client.putObject({
       Bucket: BUCKET_NAME,
@@ -167,13 +166,13 @@ export const listAppend: CommandFunction = async (...args) => {
 
     return {
       code: "Success",
-      message: `${listName}: added line ${line}`,
+      message: `${listName}: added line ${line}\n`,
     };
   }
   catch {
     return {
       code: "User Error",
-      message: `Could not append list ${listName}`,
+      message: `${listName}: could not append line.`,
     };
   }
 };
@@ -191,34 +190,33 @@ export const listReplace: CommandFunction = async (...args) => {
 
   const listName = args[0];
 
-  let replaceIndex;
+  let replaceIndex: number;
   let replaceWithLine;
   if (args.length === 1) {
     // No further args are given. Delete the last line.
     replaceIndex = -1;
-    replaceWithLine = "\n";
+    replaceWithLine = "";
   }
   else if (args.length === 2) {
     if (isNumberString(args[1])) {
-      // Only the line number is given. Delete the line by replacing with blank line
-      // which will be filtered out.
+      // Only the line number is given. Delete the line.
       replaceIndex = Number(args[1]) - 1;
-      replaceWithLine = "\n";
+      replaceWithLine = "";
     }
     else {
       // Only the line is given. Replace the last line in the list.
       replaceIndex = -1;
-      replaceWithLine = args[1] + "\n";
+      replaceWithLine = args[1];
     }
   }
   else if (args.length === 3) {
     replaceIndex = Number(args[1]) - 1;
-    replaceWithLine = args[2] + "\n";
+    replaceWithLine = args[2];
   }
   else {
     return {
       code: "User Error",
-      message: "Too many arguments supplied.",
+      message: `${listName}: too many arguments supplied.`,
     };
   }
 
@@ -229,7 +227,7 @@ export const listReplace: CommandFunction = async (...args) => {
     });
 
     const listText = await s3ObjectToString(getObjectResult);
-    const listLines = listText.split("\n");
+    let listLines = textToLines(listText);
 
     if (replaceIndex === -1) {
       replaceIndex = listLines.length - 1;
@@ -238,17 +236,17 @@ export const listReplace: CommandFunction = async (...args) => {
     if (replaceIndex < 0 || replaceIndex >= listLines.length) {
       return {
         code: "User Error",
-        message: "Invalid replace line index.",
+        message: `${listName}: invalid replace line index.`,
       };
     }
 
-    // Replace the line and filter out any empty lines,
-    // effectively deleting a line if a replacement was
-    // not given.
-    listLines[replaceIndex] = replaceWithLine;
-    const newListText = listLines
-      .filter(line => line !== "\n")
-      .join("\n");
+    if (replaceWithLine === "") {
+      listLines = listLines.filter((value, index) => index !== replaceIndex);
+    }
+    else {
+      listLines[replaceIndex] = replaceWithLine;
+    }
+    const newListText = linesToText(listLines);
 
     await s3Client.putObject({
       Bucket: BUCKET_NAME,
@@ -264,7 +262,7 @@ export const listReplace: CommandFunction = async (...args) => {
   catch {
     return {
       code: "User Error",
-      message: `Could not replace line in list ${listName}`,
+      message: `${listName}: could not replace line.`,
     };
   }
 };

@@ -4,7 +4,7 @@
 
 The List application provides creation and management of lists of text that are stored in the cloud. Use it for reminders or shopping.
 
-![Example usage of List application](assets/session_one.jpg =300x)
+![Example usage of List application](assets/session_one.jpg | width=100)
 
 ---
 

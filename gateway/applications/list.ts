@@ -131,23 +131,9 @@ export const listAppend: CommandFunction = async (...args) => {
       message: "List name not given.",
     };
   }
-  if (args.length > 2) {
-    return {
-      code: "User Error",
-      message: "Too many arguments supplied.",
-    };
-  }
 
   const listName = args[0];
-
-  if (args.length < 2 || args[1].trim() === "") {
-    return {
-      code: "User Error",
-      message: `${listName}: cannot append a blank line. Supply a line.`,
-    };
-  }
-
-  const line = args[1];
+  const lines = args.splice(1).filter(line => line.trim() !== "");
 
   try {
     const getObjectResult = await s3Client.getObject({
@@ -156,7 +142,7 @@ export const listAppend: CommandFunction = async (...args) => {
     });
 
     const listText = await s3ObjectToString(getObjectResult);
-    const newListText = linesToText(textToLines(listText).concat(line));
+    const newListText = linesToText(textToLines(listText).concat(lines));
 
     await s3Client.putObject({
       Bucket: BUCKET_NAME,
@@ -166,13 +152,13 @@ export const listAppend: CommandFunction = async (...args) => {
 
     return {
       code: "Success",
-      message: `${listName}: added line ${line}\n`,
+      message: `${listName}: added ${lines.length} line${lines.length === 1 ? "" : "s"}\n`,
     };
   }
   catch {
     return {
       code: "User Error",
-      message: `${listName}: could not append line.`,
+      message: `${listName}: could not append lines.`,
     };
   }
 };

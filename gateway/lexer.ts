@@ -1,10 +1,12 @@
 import { listAppend, listMake, listPrint, listReplace } from "./applications/list";
 
+/** The smallest lexical part of user input. */
 interface Token {
   readonly type: "Command" | "Subcommand" | "Argument";
   readonly text: string;
 }
 
+/** The operation specified by the comman tokens from the user input. */
 interface Command {
   readonly fun: CommandFunction;
   readonly args: string[];

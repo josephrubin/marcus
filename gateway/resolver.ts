@@ -2,6 +2,10 @@ import { LambdaProxyResponse, SmsLambdaHandler } from "./sms-lambda-types";
 import { twiml } from "twilio";
 import { parseTokens, parseCommand } from "./lexer";
 
+const APPROVED_USER_PHONE_NUMBERS = process.env.MARCUS_APPROVED_USER_PHONE_NUMBERS
+  ?.split(",")
+  .map(number => number.trim());
+
 /**
  * Resolve the Sms request.
  * @param event the Sms event.
@@ -76,9 +80,12 @@ const lambdaHandler: SmsLambdaHandler = async (event) => {
 };
 
 function isAuthorizedRequest(parsedRequestBody: Map<string, string>) {
+  if (!APPROVED_USER_PHONE_NUMBERS) {
+    throw "Can't find authorized user phone numbers.";
+  }
   const fromPhoneNumber = parsedRequestBody.get("From");
   console.log(`Checking authorization for: ${fromPhoneNumber}`);
-  return fromPhoneNumber && ["+12039149577", "+15163615780"].includes(fromPhoneNumber);
+  return fromPhoneNumber && APPROVED_USER_PHONE_NUMBERS.includes(fromPhoneNumber);
 }
 
 function parseRequestBody(requestBody: string) {

@@ -10,7 +10,7 @@ The List application provides creation and management of lists of text that are 
   <img src="./assets/session_one.jpg" alt="Example session using List" width="384px" />
 </p>
 
-## Event
+## Event (not yet implemented)
 
 The Event application connects to the user's gCal to read/write events.
 
